@@ -7,7 +7,7 @@
     "dev": "node build.mjs && node server.mjs",
     "start": "node build.mjs && node server.mjs",
     "test": "node --test core.test.mjs",
-    "check": "node --check app.js && node --check data.js && node --check core.js",
+    "check": "node --check app.js && node --check data.js && node --check core.js && node --check random-data.js && node --check random-page.js",
     "build": "node build.mjs"
   },
   "engines": {

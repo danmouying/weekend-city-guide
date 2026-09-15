@@ -1,3 +1,4 @@
+import { randomView, bindRandom, stopRandomAnimation } from "./random-page.js";
 import { activities, categories } from "./data.js";
 import {
   byId,
@@ -39,6 +40,7 @@ let state = {
     : [],
   votes: Array.isArray(saved.votes) ? decodePlan(saved.votes.join(",")) : [],
 };
+if (location.hash === "#random") state.view = "random";
 const imported = new URLSearchParams(location.search).get("plan");
 if (imported) {
   const q = new URLSearchParams(location.search);
@@ -86,9 +88,13 @@ function discover() {
   const matches = recommend(state);
   return `<section class="intro"><div><div class="kicker"><span></span> YOUR WEEKEND STARTS HERE</div><h1>周末，<span>去生活里逛逛。</span></h1><p>看一场展，吹一阵风。下一站，由你喜欢的事决定。</p></div><div class="weather"><span class="sun">${state.weather === "rain" ? "☂" : "☀"}</span><div><b>${state.weather === "rain" ? "雨天 · 室内也精彩" : "晴天 · 适合出门走走"}</b><small>杭州 · 天气情景演示，可在下方切换</small></div></div></section>
 <section class="filters" aria-label="探索偏好"><div class="filter-title"><span>✳</span><div><b>你的周末，你来定</b><small>几次选择，找到合拍的去处</small></div></div><label>出行时间<select id="period"><option value="half" ${state.period === "half" ? "selected" : ""}>周六 · 半日</option><option value="day" ${state.period === "day" ? "selected" : ""}>周六 · 一日</option></select></label><label>人均预算<select id="budget">${[0, 50, 100, 200].map((n) => `<option value="${n}" ${state.budget === n ? "selected" : ""}>${n ? "¥ " + n + " 以内" : "免费活动"}</option>`).join("")}</select></label><label>同行人数<select id="people">${[1, 2, 4, 6].map((n) => `<option value="${n}" ${state.people === n ? "selected" : ""}>${n === 1 ? "一个人" : n + " 人同行"}</option>`).join("")}</select></label><label>天气情景<select id="weather"><option value="sun" ${state.weather === "sun" ? "selected" : ""}>晴天 / 多云</option><option value="rain" ${state.weather === "rain" ? "selected" : ""}>下雨 · 优先室内</option></select></label><button class="primary generate">帮我安排 ↗</button></section>
-<div class="workspace"><section class="explore"><div class="section-heading"><div><h2>发现一点新鲜的 <span>EXPLORE</span></h2><p>不用走很远，也能给周末换个样子。</p></div><label class="search"><span>⌕</span><input id="search" placeholder="搜索活动、地点" aria-label="搜索活动、地点" value="${esc(state.query)}"></label></div><div class="categories">${categories.map((c, i) => `<button data-category="${c}" class="${state.category === c ? "active" : ""}" aria-pressed="${state.category === c}">${icons[i]} ${c}</button>`).join("")}</div><div class="result-note"><span>${state.weather === "rain" ? "☂ 已为你筛选适合雨天的室内活动" : "✧ 按你的预算和同行人数推荐"} · ${matches.length} 个灵感</span><span>全部为示例活动</span></div><div class="cards">${matches.length ? matches.map(card).join("") : '<div class="empty"><h3>暂时没有合适的活动</h3><p>试试提高预算，或者切换兴趣与天气。</p><button class="secondary" id="reset">重置筛选</button></div>'}</div></section><aside class="sidebar"><div class="weekend-note"><span class="note-label">A LITTLE REMINDER</span><h2>周末很短，<br>快乐可以<br><em>很具体。</em></h2><p>给自己一点出门的理由。</p><span class="note-arrow">↗</span></div><div class="mini-plan"><div><h3>你的出逃清单</h3><span>${state.plan.length} 站</span></div><p>${state.plan.length ? state.plan.map((id) => esc(byId(id).title)).join("<br>") : "把喜欢的活动加进来，<br>拼成属于你的周末。"}</p><button class="secondary" data-view="plan">查看周末计划 ↗</button></div><p class="aside-note">活动费用与路程为示例估算。<br>出发前请核实场地、预约与天气。</p></aside></div>`;
+<div class="workspace"><section class="explore"><div class="section-heading"><div><h2>发现一点新鲜的 <span>EXPLORE</span></h2><p>不用走很远，也能给周末换个样子。</p></div><label class="search"><span>⌕</span><input id="search" placeholder="搜索活动、地点" aria-label="搜索活动、地点" value="${esc(state.query)}"></label></div><div class="categories">${categories.map((c, i) => `<button data-category="${c}" class="${state.category === c ? "active" : ""}" aria-pressed="${state.category === c}">${icons[i]} ${c}</button>`).join("")}</div><div class="result-note"><span>${state.weather === "rain" ? "☂ 已为你筛选适合雨天的室内活动" : "✧ 按你的预算和同行人数推荐"} · ${matches.length} 个灵感</span><span>全部为示例活动</span></div><div class="cards">${matches.length ? matches.map(card).join("") : '<div class="empty"><h3>暂时没有合适的活动</h3><p>试试提高预算，或者切换兴趣与天气。</p><button class="secondary" id="reset">重置筛选</button></div>'}</div></section><aside class="sidebar"><div class="weekend-note"><span class="note-label">A LITTLE REMINDER</span><h2>周末很短，<br>快乐可以<br><em>很具体。</em></h2><p>给自己一点出门的理由。</p><button class="note-random" data-view="random">没有头绪？随机抽一个 ↗</button><span class="note-arrow">↗</span></div><div class="mini-plan"><div><h3>你的出逃清单</h3><span>${state.plan.length} 站</span></div><p>${state.plan.length ? state.plan.map((id) => esc(byId(id).title)).join("<br>") : "把喜欢的活动加进来，<br>拼成属于你的周末。"}</p><button class="secondary" data-view="plan">查看周末计划 ↗</button></div><p class="aside-note">活动费用与路程为示例估算。<br>出发前请核实场地、预约与天气。</p></aside></div>`;
 }
+let lastView = null;
 function render() {
+  stopRandomAnimation();
+  const viewChanged = lastView !== state.view;
+  lastView = state.view;
   document
     .querySelectorAll(".nav")
     .forEach((b) =>
@@ -99,11 +105,18 @@ function render() {
     state.view === "discover" ? discover() : secondaryView();
   bind();
   bindExtra();
+  if (state.view === "random") bindRandom($("#main"), render);
+  if (viewChanged) {
+    $("#main").classList.remove("view-enter");
+    void $("#main").offsetWidth;
+    $("#main").classList.add("view-enter");
+  }
 }
 function heading(kicker, title, subtitle) {
   return `<section class="page-heading"><div class="kicker">${kicker}</div><h1>${title}</h1><p>${subtitle}</p></section>`;
 }
 function secondaryView() {
+  if (state.view === "random") return randomView();
   if (state.view === "plan") return planView();
   if (state.view === "team") return teamView();
   return mineView();
@@ -351,6 +364,11 @@ function bind() {
     (b) =>
       (b.onclick = () => {
         state.view = b.dataset.view;
+        history.replaceState(
+          null,
+          "",
+          location.pathname + (state.view === "random" ? "#random" : ""),
+        );
         render();
         window.scrollTo({ top: 0, behavior: "smooth" });
       }),
