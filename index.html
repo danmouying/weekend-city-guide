@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#234cf4" />
+    <meta
+      name="description"
+      content="周末去哪儿：按兴趣、预算和天气发现杭州周末灵感，安排路线、邀请朋友、记录出行。"
+    />
+    <title>周末去哪儿 · 城市探索指南</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">跳到主要内容</a>
+    <header class="header">
+      <a class="brand" href="#discover"
+        ><span class="brand-icon">↗</span
+        ><span>周末去哪儿<small>WEEKEND, WANDER.</small></span></a
+      >
+      <nav aria-label="主导航">
+        <button data-view="discover" class="nav active">发现</button
+        ><button data-view="plan" class="nav">
+          周末计划 <span id="plan-count">0</span></button
+        ><button data-view="team" class="nav">一起出发</button
+        ><button data-view="mine" class="nav">我的足迹</button>
+      </nav>
+      <span class="city">⌖ 杭州 <span>城市试点</span></span>
+    </header>
+    <main id="main" tabindex="-1"></main>
+    <footer>
+      <span>周末去哪儿 <b>·</b> 把周末还给生活。</span
+      ><span
+        >课程作品 · 活动与天气为示例 · 数据保存在本机 ·
+        <a class="credits-link" href="credits.html">图片来源</a></span
+      >
+    </footer>
+    <dialog id="detail"></dialog>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
